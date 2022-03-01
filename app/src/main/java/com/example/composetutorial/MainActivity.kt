@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,7 +56,17 @@ fun MessageCard(msg: Message) {
         )
         Spacer(modifier = Modifier.width(8.dp))
 
+        /**
+         * @var isExpanded:boolean
+         */
         var isExpanded by remember { mutableStateOf(false)}
+        /**
+         * @val surfaceColor:Color
+         * animated color that gradually changes from 'primary' to 'surface'
+         * when `isExpanded` changes
+         */
+        val surfaceColor: Color by animateColorAsState(targetValue = if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface)
+
         Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
                 text = msg.author,
@@ -61,7 +74,13 @@ fun MessageCard(msg: Message) {
                 style = MaterialTheme.typography.subtitle2
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Surface(shape = MaterialTheme.shapes.medium, elevation = 2.dp) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                elevation = 2.dp,
+                color = surfaceColor,
+                // animate the surface size gradually
+                modifier = Modifier.animateContentSize().padding(1.dp)
+            ) {
                 Text(
                     text = msg.body,
                     modifier = Modifier.padding(all = 4.dp),
